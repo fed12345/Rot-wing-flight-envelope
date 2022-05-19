@@ -1,8 +1,11 @@
 #Define the flight evelope of the rotating wing drone
 #Import Packages
+#https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.correlate.html ---> Double Check this link to figure out if correlation is needed,
+#  and maybe it need to be applied on signle flights dircectly
 import numpy as np
 import pickle as pk
 import matplotlib.pyplot as plt
+import scipy.signal as sp
 
 def unpickle(file):
     """Unpickle file
@@ -27,14 +30,14 @@ def stability(dict):
     Returns:
         array: array with airspeeds
     """    
-    std = np.std(dict['acc_z_f'])*-9.81
+
     stable_flight = {'airspeed': [], 'wing_angle': []}
 
-    for i in range(2,len(dict['airspeed_f'])):
-        if dict['acc_z_f'][i] > (-9.81 - 0.2*std) or dict['acc_z_f'][i]< (-9.81 + 2*std) :
+    for i in range(1,len(dict['airspeed_f'])):
+
+        if abs(dict['acc_z_f'][i] - (dict['ref_acc_z'][i]-9.80655)) > 0.07 :
             continue
-        ave = np.mean(dict['acc_z_f'][i-2:i+2])
-        if ave > (-9.81 - 0.2*std) or ave < (-9.81 + 0.2*std) :
+        if abs(np.mean(dict['acc_z'][i-5:i+5]) - (dict['ref_acc_z'][i]-9.81)) > 0.2:
             continue
 
         
@@ -48,16 +51,20 @@ def main():
     """Main Function
     """  
     #Get dictionary of log file
-    flight0 = unpickle("/Users/Federico/Desktop/Rotating_wing/filetered_data/all0fligths.pkl")
-    flight40 = unpickle("/Users/Federico/Desktop/Rotating_wing/filetered_data/all40fligths.pkl")
-    flight80 = unpickle("/Users/Federico/Desktop/Rotating_wing/filetered_data/all80fligths.pkl")
-    flight90 = unpickle("/Users/Federico/Desktop/Rotating_wing/filetered_data/all90fligths.pkl")
+    flight0 = unpickle("/Users/Federico/Desktop/Rotating_wing/filtered_data/all0fligths.pkl")
+    flight40 = unpickle("/Users/Federico/Desktop/Rotating_wing/filtered_data/all40fligths.pkl")
+    flight80 = unpickle("/Users/Federico/Desktop/Rotating_wing/filtered_data/all80fligths.pkl")
+    flight90 = unpickle("/Users/Federico/Desktop/Rotating_wing/filtered_data/all90fligths.pkl")
 
     #Get stable flights
     stable_flight0 = stability(flight0)
     stable_flight40 = stability(flight40)
     stable_flight80 = stability(flight80)
     stable_flight90 = stability(flight90)
+
+    
+    
+
 
     #Plotting
     plt.figure('Flight Envelope at Load = 1g')
@@ -68,6 +75,7 @@ def main():
     plt.scatter(stable_flight90['airspeed'],stable_flight90['wing_angle'], s = s)
     plt.xlabel('Airspeed [m/s]')
     plt.ylabel('Wing Angle [deg]')
+    plt.savefig('/Users/Federico/Desktop/Rotating_wing/flight_envelope_1g.png')
     plt.show()
 
 
