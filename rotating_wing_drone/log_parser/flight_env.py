@@ -68,40 +68,48 @@ class FlightEnv(object):
         flight80 = {'t':[], 'airspeed': [], 'acc_z' : [], 'wing_angle_deg_sp': [], 'ref_acc_z' : [] }
         flight40 = {'t':[], 'airspeed': [], 'acc_z' : [], 'wing_angle_deg_sp': [], 'ref_acc_z' : [] }
         flight0  = {'t':[], 'airspeed': [], 'acc_z' : [], 'wing_angle_deg_sp': [], 'ref_acc_z' : [] }
-        feqd = len(self.log_dict['GUIDANCE_INDI_HYBRID']['sp_accel_z']['data'])/len(self.log_dict['STAB_ATTITUDE_FULL_INDI']['airspeed']['data'])
+        
+        try:
+            self.log_dict['STAB_ATTITUDE_FULL_INDI']['airspeed']['data']           
+        except KeyError:
+            name = 'EFF_FULL_INDI'
+        else:
+            name = 'STAB_ATTITUDE_FULL_INDI'
+
+        feqd = len(self.log_dict['GUIDANCE_INDI_HYBRID']['sp_accel_z']['data'])/len(self.log_dict[name]['airspeed']['data'])
         for j in range(len(self.start_time)):
-            for i in range(len(self.log_dict['STAB_ATTITUDE_FULL_INDI']['airspeed']['data'])):
-                if self.log_dict['STAB_ATTITUDE_FULL_INDI']['t'][i] < self.start_time[j]:
+            for i in range(len(self.log_dict[name]['airspeed']['data'])):
+                if self.log_dict[name]['t'][i] < self.start_time[j]:
                     i += 2
                     continue
-                if self.log_dict['STAB_ATTITUDE_FULL_INDI']['t'][i] > self.end_time[j]:
+                if self.log_dict[name]['t'][i] > self.end_time[j]:
                     continue
         
                 if  80 <= self.log_dict['ROT_WING_CONTROLLER']['wing_angle_deg_sp']['data'][i] <90:
-                    flight90['airspeed'].append(self.log_dict['STAB_ATTITUDE_FULL_INDI']['airspeed']['data'][i])
-                    flight90['t'].append(self.log_dict['STAB_ATTITUDE_FULL_INDI']['t'][i])
-                    flight90['acc_z'].append(self.log_dict['STAB_ATTITUDE_FULL_INDI']['body_accel_z']['data'][i])
+                    flight90['airspeed'].append(self.log_dict[name]['airspeed']['data'][i])
+                    flight90['t'].append(self.log_dict[name]['t'][i])
+                    flight90['acc_z'].append(self.log_dict[name]['body_accel_z']['data'][i])
                     flight90['wing_angle_deg_sp'].append(self.log_dict['ROT_WING_CONTROLLER']['wing_angle_deg_sp']['data'][i])
                     flight90['ref_acc_z'].append(self.log_dict['GUIDANCE_INDI_HYBRID']['sp_accel_z']['data'][int(i*feqd)])
 
 
                 if 40 <= self.log_dict['ROT_WING_CONTROLLER']['wing_angle_deg_sp']['data'][i] <80:
-                    flight80['airspeed'].append(self.log_dict['STAB_ATTITUDE_FULL_INDI']['airspeed']['data'][i])
-                    flight80['t'].append(self.log_dict['STAB_ATTITUDE_FULL_INDI']['t'][i])
+                    flight80['airspeed'].append(self.log_dict[name]['airspeed']['data'][i])
+                    flight80['t'].append(self.log_dict[name]['t'][i])
                     flight80['acc_z'].append(self.log_dict['IMU_ACCEL_SCALED']['az']['data'][i])
                     flight80['wing_angle_deg_sp'].append(self.log_dict['ROT_WING_CONTROLLER']['wing_angle_deg_sp']['data'][i])
                     flight80['ref_acc_z'].append(self.log_dict['GUIDANCE_INDI_HYBRID']['sp_accel_z']['data'][int(i*feqd)])
 
                 if 20 <= self.log_dict['ROT_WING_CONTROLLER']['wing_angle_deg_sp']['data'][i] < 40:
-                    flight40['airspeed'].append(self.log_dict['STAB_ATTITUDE_FULL_INDI']['airspeed']['data'][i])
-                    flight40['t'].append(self.log_dict['STAB_ATTITUDE_FULL_INDI']['t'][i])
+                    flight40['airspeed'].append(self.log_dict[name]['airspeed']['data'][i])
+                    flight40['t'].append(self.log_dict[name]['t'][i])
                     flight40['acc_z'].append(self.log_dict['IMU_ACCEL_SCALED']['az']['data'][i])
                     flight40['wing_angle_deg_sp'].append(self.log_dict['ROT_WING_CONTROLLER']['wing_angle_deg_sp']['data'][i])
                     flight40['ref_acc_z'].append(self.log_dict['GUIDANCE_INDI_HYBRID']['sp_accel_z']['data'][int(i*feqd)])
                 
                 if 0 <= self.log_dict['ROT_WING_CONTROLLER']['wing_angle_deg_sp']['data'][i] < 20:
-                    flight0['airspeed'].append(self.log_dict['STAB_ATTITUDE_FULL_INDI']['airspeed']['data'][i])
-                    flight0['t'].append(self.log_dict['STAB_ATTITUDE_FULL_INDI']['t'][i])
+                    flight0['airspeed'].append(self.log_dict[name]['airspeed']['data'][i])
+                    flight0['t'].append(self.log_dict[name]['t'][i])
                     flight0['acc_z'].append(self.log_dict['IMU_ACCEL_SCALED']['az']['data'][i])
                     flight0['wing_angle_deg_sp'].append(self.log_dict['ROT_WING_CONTROLLER']['wing_angle_deg_sp']['data'][i])
                     flight0['ref_acc_z'].append(self.log_dict['GUIDANCE_INDI_HYBRID']['sp_accel_z']['data'][int(i*feqd)])

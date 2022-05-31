@@ -1,7 +1,5 @@
 #Define the flight evelope of the rotating wing drone
 #Import Packages
-#https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.correlate.html ---> Double Check this link to figure out if correlation is needed,
-#  and maybe it need to be applied on signle flights dircectly
 import numpy as np
 import pickle as pk
 import matplotlib.pyplot as plt

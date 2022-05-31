@@ -12,7 +12,6 @@ import xml.etree.ElementTree as ET
 # Functions for plotter
 import matplotlib.pyplot as plt
 
-from lxml import etree
 
 class LogParser(object):
     def __init__(self, data_path, t_start = None, t_end = None):

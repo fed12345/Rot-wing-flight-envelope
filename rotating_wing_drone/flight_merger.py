@@ -1,4 +1,5 @@
-#Merge all the flights in diffrenet categories depending on the angle of the wing and apply a filter to remove noise from data. 
+#Merge all the flights in diffrenet categories depending on the angle of the wing and apply a filter to remove noise from data
+# Also store the data in a folder
 
 from xml.etree.ElementInclude import default_loader
 import numpy as np
@@ -11,7 +12,7 @@ import os
 import pandas as pd
 import tkinter as tk
 
-from flight_env import FlightEnv
+from log_parser.flight_env import FlightEnv
 
 from statsmodels.nonparametric.smoothers_lowess import lowess
 
@@ -245,5 +246,8 @@ class Flightmerge():
 if __name__ == '__main__':
  
 
-    x = Flightmerge(only_plot=True)
+    x = Flightmerge()
+    x.merger()
+    x.store_data('/Users/Federico/Desktop/Rotating_wing/full_filtererd_data')
+    x.plotter(2)
     plt.show()

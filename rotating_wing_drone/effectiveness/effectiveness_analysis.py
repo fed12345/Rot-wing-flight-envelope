@@ -11,7 +11,7 @@ from os import path, getenv
 PPRZ_HOME = getenv("PAPARAZZI_HOME", path.normpath(path.join(path.dirname(path.abspath(__file__)), '../../../../')))
 sys.path.append(PPRZ_HOME + "/sw/logalizer/python/log_parser") # pprzlink
 
-from rotating_wing_drone.log_parser import LogParser
+from rotating_wing_drone.log_parser.log_parser import LogParser
 
 parsed_log = LogParser(610, 620)
 
