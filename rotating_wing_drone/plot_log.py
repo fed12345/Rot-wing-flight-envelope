@@ -6,7 +6,7 @@ from tkinter import filedialog
 
 # if PAPARAZZI_HOME not set, then assume the tree containing this
 # file is a reasonable substitute
-from log_parser import LogParser
+from log_parser.log_parser import LogParser
 
 data_path = filedialog.askopenfilename(filetypes=[("data log files", ".data")])
 
@@ -14,8 +14,14 @@ parsed_log = LogParser(data_path)
 # parsed_log.plot_variable('STAB_ATTITUDE_FULL_INDI', ['angular_rate_q'], [[]])
 # parsed_log.plot_variable('STAB_ATTITUDE_FULL_INDI', ['u'], [[8]])
 # parsed_log.plot_variable('STAB_ATTITUDE_FULL_INDI', ['u'], [[2]])
-# parsed_log.plot_variable('STAB_ATTITUDE_FULL_INDI', ['u'], [[3]])
-# parsed_log.plot_variable('ROTORCRAFT_STATUS', ['ap_in_flight'])
+# parsed_log.plot_variable('STAB_ATTITUDE_FULL_INDI', ['u'], [[6]])
+parsed_log.plot_variable('ROTORCRAFT_STATUS', ['ap_in_flight'])
+parsed_log.plot_variable('ROTORCRAFT_STATUS', ['ap_motors_on'])
+parsed_log.plot_variable('ROTORCRAFT_STATUS', ['ap_mode'])
+parsed_log.plot_variable('ROTORCRAFT_STATUS', ['ap_h_mode'])
+parsed_log.plot_variable('ROTORCRAFT_STATUS', ['ap_v_mode'])
+
+
 # parsed_log.plot_variable('ROTORCRAFT_FP', [ 'psi'])
 #parsed_log.plot_variable('STAB_ATTITUDE_FULL_INDI', ['airspeed'])
 #parsed_log.plot_variable('IMU_ACCEL_SCALED', ['ax', 'ay', 'az'])

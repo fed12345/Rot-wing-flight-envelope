@@ -5,9 +5,6 @@ import os as os
 import matplotlib.pyplot as plt
 import tkinter as tk
 
-# if PAPARAZZI_HOME not set, then assume the tree containing this
-# file is a reasonable substitute
-
 from log_parser import LogParser
 #Select a full day of testing
 root = tk.Tk()

@@ -54,15 +54,19 @@ class Flightmerge():
     """
     Merge all flights in a folder
     """    
-    def __init__(self, only_plot = False):
+    def __init__(self, only_plot = False, *inputdir):
         if only_plot == False:
-            root = tk.Tk()
-            self.folder_path = tk.filedialog.askdirectory(title = 'Select Flight Data Folder')
-            self.all90fligths = { 'airspeed': [], 'acc_z' : [],'airspeed_f': [], 'acc_z_f' : [], 'wing_angle_deg': [], 'ref_acc_z': []}
-            self.all80fligths = {'airspeed': [], 'acc_z' : [],'airspeed_f': [], 'acc_z_f' : [],'wing_angle_deg': [], 'ref_acc_z': []}
-            self.all40fligths = {'airspeed': [], 'acc_z' : [],'airspeed_f': [], 'acc_z_f' : [], 'wing_angle_deg': [], 'ref_acc_z': []}
-            self.all0fligths = {'airspeed': [], 'acc_z' : [] ,'airspeed_f': [], 'acc_z_f' : [], 'wing_angle_deg': [], 'ref_acc_z': []}
-            root.withdraw()
+            if len(inputdir)==0:
+                root = tk.Tk()
+                self.folder_path = tk.filedialog.askdirectory(title = 'Select Flight Data Folder')
+                root.withdraw()
+            else:
+                self.folder_path = inputdir
+            self.all90fligths = { 'airspeed': [], 'acc_z' : [],'airspeed_f': [], 'acc_z_f' : [], 'wing_angle_deg': [], 'ref_acc_z': [], 'u' : [],'ap_mode' : []}
+            self.all80fligths = {'airspeed': [], 'acc_z' : [],'airspeed_f': [], 'acc_z_f' : [],'wing_angle_deg': [], 'ref_acc_z': [], 'u' : [],'ap_mode' : []}
+            self.all40fligths = {'airspeed': [], 'acc_z' : [],'airspeed_f': [], 'acc_z_f' : [], 'wing_angle_deg': [], 'ref_acc_z': [], 'u' : [],'ap_mode' : []}
+            self.all0fligths = {'airspeed': [], 'acc_z' : [] ,'airspeed_f': [], 'acc_z_f' : [], 'wing_angle_deg': [], 'ref_acc_z': [], 'u' : [],'ap_mode' : []}
+            
         else:
             self.all90fligths = unpickle("/Users/Federico/Desktop/Rotating_wing/filtered_data/all90fligths.pkl")
             self.all80fligths = unpickle("/Users/Federico/Desktop/Rotating_wing/filtered_data/all80fligths.pkl")
@@ -84,14 +88,6 @@ class Flightmerge():
             flight = FlightEnv(data_path)
             flight90, flight80, flight40, flight0 = flight.wing_angle_parser()
 
-
-
-            #NEED TO FILTER HERE This filter doeswnt work well
-            
-            # flight90_f = self.bw_filter(flight90)
-            # flight80_f = self.bw_filter(flight80)
-            # flight40_f = self.bw_filter(flight40)
-            # flight0_f = self.bw_filter(flight0)
             
             if len(flight90['acc_z']) > 0:
                 flight90_f = self.filter(flight90, 0.6)
@@ -101,6 +97,8 @@ class Flightmerge():
                 self.all90fligths['acc_z'].extend(flight90['acc_z'])
                 self.all90fligths['wing_angle_deg'].extend(flight90['wing_angle_deg_sp'])
                 self.all90fligths['ref_acc_z'].extend(flight90['ref_acc_z'])
+                self.all90fligths['u'].extend(flight90['u'])
+                self.all90fligths['ap_mode'].extend(flight90['ap_mode'])
 
 
             if len(flight80['acc_z']) > 0:
@@ -111,6 +109,9 @@ class Flightmerge():
                 self.all80fligths['acc_z'].extend(flight80['acc_z'])
                 self.all80fligths['wing_angle_deg'].extend(flight80['wing_angle_deg_sp']) 
                 self.all80fligths['ref_acc_z'].extend(flight80['ref_acc_z'])
+                self.all80fligths['u'].extend(flight80['u'])
+                self.all80fligths['ap_mode'].extend(flight80['ap_mode'])
+
 
 
             if len(flight40['acc_z']) > 0:
@@ -121,6 +122,9 @@ class Flightmerge():
                 self.all40fligths['acc_z'].extend(flight40['acc_z'])
                 self.all40fligths['wing_angle_deg'].extend(flight40['wing_angle_deg_sp'])
                 self.all40fligths['ref_acc_z'].extend(flight40['ref_acc_z'])
+                self.all40fligths['u'].extend(flight40['u'])
+                self.all40fligths['ap_mode'].extend(flight40['ap_mode'])
+
 
             
             if len(flight0['acc_z']) > 0:
@@ -131,6 +135,9 @@ class Flightmerge():
                 self.all0fligths['acc_z'].extend(flight0['acc_z'])
                 self.all0fligths['wing_angle_deg'].extend(flight0['wing_angle_deg_sp'])
                 self.all0fligths['ref_acc_z'].extend(flight0['ref_acc_z'])
+                self.all0fligths['u'].extend(flight0['u'])
+                self.all0fligths['ap_mode'].extend(flight0['ap_mode'])
+
 
             
 
@@ -164,61 +171,38 @@ class Flightmerge():
         if dimension == 2:
             def using_mpl_scatter_density(fig, x, y):
                 ax = fig.add_subplot(1, 1, 1, projection='scatter_density')
-                density = ax.scatter_density(x, y,dpi=36, cmap=white_viridis,vmin = 0, vmax =10000)
+                density = ax.scatter_density(x, y,dpi=40
+                , cmap=white_viridis,vmin = 0, vmax =1500)
                 fig.colorbar(density, label='Number of points per pixel')
 
             fig = plt.figure('Wing angle 0-20')
-            using_mpl_scatter_density(fig, self.all0fligths['airspeed_f'],self.all0fligths['acc_z_f'])
+            using_mpl_scatter_density(fig, self.all0fligths['airspeed_f'],(np.subtract(self.all0fligths['acc_z_f'],self.all0fligths['ref_acc_z'])+9.81))
             plt.xlabel('Airspeed [m/s]')
-            plt.ylabel('Acceleration z [m/s^2]')
+            plt.ylabel('$\Delta$ Acceleration z [m/s^2]')
+            plt.title('Stability plot - Wing angle 0-20 [deg]')
 
             fig = plt.figure('Wing angle 20-40')
-            using_mpl_scatter_density(fig, self.all40fligths['airspeed_f'],self.all40fligths['acc_z_f'])
+            using_mpl_scatter_density(fig, self.all40fligths['airspeed_f'],(np.subtract(self.all40fligths['acc_z_f'],self.all40fligths['ref_acc_z'])+9.81))
             plt.xlabel('Airspeed [m/s]')
-            plt.ylabel('Acceleration z [m/s^2]')
+            plt.ylabel('$\Delta$ Acceleration z [m/s^2]')
+            plt.title('Stability plot - Wing angle 20-40 [deg]')
 
             fig = plt.figure('Wing angle 40-80')
-            using_mpl_scatter_density(fig, self.all80fligths['airspeed_f'],self.all80fligths['acc_z_f'])
+            using_mpl_scatter_density(fig, self.all80fligths['airspeed_f'],(np.subtract(self.all80fligths['acc_z_f'],self.all80fligths['ref_acc_z'])+9.81))
             plt.xlabel('Airspeed [m/s]')
-            plt.ylabel('Acceleration z [m/s^2]')
+            plt.ylabel('$\Delta$ Acceleration z [m/s^2]')
+            plt.title('Stability plot - Wing angle 40-80 [deg]')
 
             fig = plt.figure('Wing angle 80-90')
-            using_mpl_scatter_density(fig, self.all90fligths['airspeed_f'],self.all90fligths['acc_z_f'])
+            using_mpl_scatter_density(fig, self.all90fligths['airspeed_f'],(np.subtract(self.all90fligths['acc_z_f'],self.all90fligths['ref_acc_z'])+9.81))
             plt.xlabel('Airspeed [m/s]')
-            plt.ylabel('Acceleration z [m/s^2]')
+            plt.ylabel('$\Delta$ Acceleration z [m/s^2]')
+            plt.title('Stability plot - Wing angle 80-90 [deg]')
 
-
-
-            plt.figure('Wing angle 20-40 old')
-            plt.scatter(self.all40fligths['airspeed_f'],self.all40fligths['ref_acc_z'])
-            plt.xlabel('Airspeed [m/s]')
-            plt.ylabel('Acceleration z [m/s^2]')
-
-            plt.figure('Wing angle 40-80 old')
-            plt.scatter(self.all80fligths['airspeed_f'],self.all80fligths['ref_acc_z'])
-            plt.xlabel('Airspeed [m/s]')
-            plt.ylabel('Acceleration z [m/s^2]')
-
-            plt.figure('Wing angle 90 old')
-            plt.scatter(self.all90fligths['airspeed_f'],self.all90fligths['ref_acc_z'])
-            plt.xlabel('Airspeed [m/s]')
-            plt.ylabel('Acceleration z [m/s^2]')
-
-            plt.figure('Wing angle 20-40 ref')
-            plt.scatter(self.all40fligths['airspeed_f'],(np.subtract(self.all40fligths['acc_z_f'],self.all40fligths['ref_acc_z'])+9.81))
-            plt.xlabel('Airspeed [m/s]')
-            plt.ylabel('Acceleration z [m/s^2]')
-
-            plt.figure('Wing angle 40-80 ref')
-            plt.scatter(self.all80fligths['airspeed_f'],(np.subtract(self.all80fligths['acc_z_f'],self.all80fligths['ref_acc_z'])+9.81))
-            plt.xlabel('Airspeed [m/s]')
-            plt.ylabel('Acceleration z [m/s^2]')
-
-            plt.figure('Wing angle 90 ref')
-
-            plt.scatter(self.all90fligths['airspeed_f'],(np.subtract(self.all90fligths['acc_z_f'],self.all90fligths['ref_acc_z'])+9.81))
-            plt.xlabel('Airspeed [m/s]')
-            plt.ylabel('Acceleration z [m/s^2]')
+            print(len(self.all0fligths['airspeed_f']))
+            print(len(self.all40fligths['airspeed_f']))
+            print(len(self.all80fligths['airspeed_f']))
+            print(len(self.all90fligths['airspeed_f']))
 
 
         if dimension == 3:
@@ -246,8 +230,8 @@ class Flightmerge():
 if __name__ == '__main__':
  
 
-    x = Flightmerge()
-    x.merger()
-    x.store_data('/Users/Federico/Desktop/Rotating_wing/full_filtererd_data')
-    x.plotter(2)
+    x = Flightmerge(only_plot = True)
+    # x.merger()
+    # x.store_data('/Users/Federico/Desktop/Rotating_wing/full_filtererd_data')
+    # x.plotter(2)
     plt.show()
